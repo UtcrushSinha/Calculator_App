@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,6 +41,7 @@ import com.example.calculator_app.ui.theme.Calculator_AppTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -100,7 +102,7 @@ fun InputText(){
                 .fillMaxWidth()
                 .background(Color.LightGray)
                 .height(50.dp)
-                .padding(end = 16.dp),
+                .padding(end = 20.dp),
             contentAlignment = Alignment.Center){
                 Text(
                     text = text,
@@ -190,7 +192,11 @@ fun InputText(){
                 CalculatorButton("0") { appendInput("0", text) { newText -> text = newText } }
                 CalculatorButton("=") {
                     calculate(text, operator) { result ->
-                        text = result
+                        if(result=="Infinity"){
+                            text = "0"
+                        }else{
+                            text = result
+                        }
                     }
                     keyboardController?.hide()
                 }
@@ -244,7 +250,7 @@ fun InputText(){
 
  fun calculate(currentText: String, operator: String, onTextChange: (String) -> Unit) {
     if (currentText.isNotEmpty() && currentText != "0") {
-        try {
+
             val result = when (operator) {
                 "+" -> currentText.split("+").map { it.toDouble() }.sum()
                 "-" -> currentText.split("-").map { it.toDouble() }.reduce { acc, value -> acc - value }
@@ -252,13 +258,12 @@ fun InputText(){
                 "/" -> currentText.split("/").map { it.toDouble() }.reduce { acc, value -> acc / value }
                 else -> currentText.toDouble()
             }
-            onTextChange(result.toString())
-        } catch (e: Exception) {
+        val formattedResult = String.format("%.2f", result)
 
-            onTextChange("Error")
+        onTextChange(formattedResult)
         }
     }
-}
+
 
 
  fun clear(onTextChange: (String) -> Unit, onOperatorChange: (String) -> Unit) {
@@ -272,7 +277,8 @@ fun CalculatorButton(text: String,onClick: () -> Unit){
     Button(onClick = onClick,
         modifier = Modifier
             .size(80.dp)
-            .padding(4.dp)) {
+            .padding(4.dp)
+            .shadow(1.dp, shape = RoundedCornerShape(35.dp))) {
         Text(text = text, fontSize = 20.sp)
 
 
