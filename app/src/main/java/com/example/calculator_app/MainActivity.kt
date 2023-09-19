@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -78,39 +79,48 @@ fun InputText(){
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(16.dp)
+            ,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
 
         ) {
+
+
+            Text(
+                text = "Calculator_App",
+                style = TextStyle(
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.padding(16.dp)
+            )
+
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.LightGray)
-                .height(50.dp)){
-                BasicTextField(
-                    value = text,
-                    onValueChange = {
-                        text = it
-                    },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            calculate(text, operator) { result ->
-                                text = result
-                            }
-                            keyboardController?.hide()
-                        }
-                    ),
-                    textStyle = TextStyle(
+                .height(50.dp)
+                .padding(end = 16.dp),
+            contentAlignment = Alignment.Center){
+                Text(
+                    text = text,
+                    style = TextStyle(
                         fontSize = 24.sp,
-                        textAlign = TextAlign.End)
+                        textAlign = TextAlign.End
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
 
-
+                            keyboardController?.show()
+                        }
                 )
 
             }
+
+
+
+
 
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -192,6 +202,8 @@ fun InputText(){
                         { newOperator -> operator = newOperator })
                 }
             }
+
+            CalculatorButton(".") { appendInput(".", text) { newText -> text = newText } }
         }
         }
 
