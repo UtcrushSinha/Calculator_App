@@ -1,5 +1,6 @@
 package com.example.calculator_app
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -42,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -66,17 +68,32 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Calculator() {
-    InputText()
+    val configuration = LocalConfiguration.current
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            PortraitCalculator()
+        } else {
+            LandscapeCalculator()
+        }
+    }
 }
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun InputText(){
+fun PortraitCalculator(){
 
 
-        var text by remember { mutableStateOf("0") }
+        var text by remember { mutableStateOf("") }
         var operator by remember { mutableStateOf("") }
 
         val keyboardController = LocalSoftwareKeyboardController.current
+
+
 
         Column(
             modifier = Modifier
@@ -214,7 +231,153 @@ fun InputText(){
         }
 
 
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun LandscapeCalculator() {
+    // Custom landscape layout
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        var text by remember { mutableStateOf("") }
+        var operator by remember { mutableStateOf("") }
 
+        val keyboardController = LocalSoftwareKeyboardController.current
+
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(5.dp)
+                .fillMaxSize()
+            ,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+
+        ) {
+
+
+            Text(
+                text = "Calculator_App",
+                style = TextStyle(
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.padding(16.dp)
+            )
+
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.LightGray)
+                .height(50.dp)
+                .padding(end = 20.dp),
+                contentAlignment = Alignment.Center){
+                Text(
+                    text = text,
+                    style = TextStyle(
+                        fontSize = 24.sp,
+                        textAlign = TextAlign.End
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+
+                            keyboardController?.show()
+                        }
+                )
+
+            }
+
+
+
+
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                CalculatorButton("5") { appendInput("5", text) { newText -> text = newText } }
+                CalculatorButton("6") { appendInput("6", text) { newText -> text = newText } }
+                CalculatorButton("7") { appendInput("7", text) { newText -> text = newText } }
+                CalculatorButton("8") { appendInput("8", text) { newText -> text = newText } }
+                CalculatorButton("9") { appendInput("9", text) { newText -> text = newText } }
+                CalculatorButton(".") { appendInput(".", text) { newText -> text = newText } }
+
+                CalculatorButton("/") {
+                    setOperator(
+                        "/",
+                        text,
+                        { newText -> text = newText },
+                        { newOperator -> operator = newOperator })
+                }
+                CalculatorButton("*") {
+                    setOperator(
+                        "*",
+                        text,
+                        { newText -> text = newText },
+                        { newOperator -> operator = newOperator })
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                CalculatorButton("4") { appendInput("4", text) { newText -> text = newText } }
+                CalculatorButton("3") { appendInput("3", text) { newText -> text = newText } }
+                CalculatorButton("2") { appendInput("2", text) { newText -> text = newText } }
+                CalculatorButton("1") { appendInput("1", text) { newText -> text = newText } }
+                CalculatorButton("0") { appendInput("0", text) { newText -> text = newText } }
+                CalculatorButton("-") {
+                    setOperator(
+                        "-",
+                        text,
+                        { newText -> text = newText },
+                        { newOperator -> operator = newOperator })
+                }
+                CalculatorButton("+") {
+                    setOperator(
+                        "+",
+                        text,
+                        { newText -> text = newText },
+                        { newOperator -> operator = newOperator })
+                }
+                CalculatorButton("C") {
+                    clear({ newText -> text = newText }, { newOperator -> operator = newOperator })
+                }
+
+
+                CalculatorButton("=") {
+                    calculate(text, operator) { result ->
+                        if(result=="Infinity"){
+                            text = "0"
+                        }else{
+                            text = result
+                        }
+                    }
+                    keyboardController?.hide()
+                }
+
+            }
+
+
+
+
+
+
+
+
+        }
+    }
+}
 
     
 
@@ -223,7 +386,7 @@ fun InputText(){
 
 
  fun appendInput(value: String, currentText: String, onTextChange: (String) -> Unit) {
-     val newText = if (currentText == "0" || currentText.isEmpty()) {
+     val newText = if ( currentText.isEmpty()) {
          value
      } else {
          currentText + value
@@ -278,7 +441,7 @@ fun CalculatorButton(text: String,onClick: () -> Unit){
         modifier = Modifier
             .size(80.dp)
             .padding(4.dp)
-            .shadow(1.dp, shape = RoundedCornerShape(35.dp))) {
+           ) {
         Text(text = text, fontSize = 20.sp)
 
 
